@@ -2,9 +2,16 @@ buildscript {
     repositories {
         maven { url "http://repo.spring.io/libs-snapshot" }
         mavenLocal()
+        maven { url "http://oss.sonatype.org/content/repositories/snapshots/" }
     }
     dependencies {
-        classpath("org.springframework.boot:spring-boot-gradle-plugin:1.0.0.RC4")
+        classpath("org.springframework.boot:spring-boot-gradle-plugin:1.0.1.RELEASE")
+        classpath("info.solidsoft.gradle.pitest:gradle-pitest-plugin:0.33.0-SNAPSHOT") {
+            exclude group: "org.pitest"
+        }
+        classpath "org.pitest:pitest-command-line:0.33"
+//        //The following line should be enough to configure PIT 0.33
+//        classpath("info.solidsoft.gradle.pitest:gradle-pitest-plugin:0.33.0-SNAPSHOT")
     }
 }
 
@@ -12,6 +19,12 @@ apply plugin: 'java'
 apply plugin: 'eclipse'
 apply plugin: 'idea'
 apply plugin: 'spring-boot'
+apply plugin: 'pitest'
+
+pitest {
+    targetClasses = ["hello.*"]
+    threads = 2
+}
 
 jar {
     baseName = 'gs-spring-boot'
@@ -24,7 +37,11 @@ repositories {
 }
 
 dependencies {
-    compile("org.springframework.boot:spring-boot-starter-web")
+//    compile("org.springframework.boot:spring-boot-starter-web")
+    compile("org.springframework.boot:spring-boot-starter-web") {
+        exclude module: "spring-boot-starter-tomcat"
+    }
+    compile("org.springframework.boot:spring-boot-starter-jetty")
     // tag::actuator[]
     compile("org.springframework.boot:spring-boot-starter-actuator")
     // end::actuator[]
@@ -34,3 +51,4 @@ dependencies {
 task wrapper(type: Wrapper) {
     gradleVersion = '1.11'
 }
+
